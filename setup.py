@@ -8,9 +8,6 @@ setup(
     author="Pavel Katskov",
     author_email="pasha_kackov@mail.ru",
     license="MIT",
-    packages=[
-        "aiohttp",
-    ],
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Operating System :: OS Independent",
