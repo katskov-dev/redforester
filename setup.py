@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="rfapi",
-    version="0.0.3",
+    version="0.1.0",
     description="Async RedForester API module for Python 3.6+",
     url="https://github.com/ichega/rfapi/",
     author="Pavel Katskov",
@@ -21,3 +21,4 @@ setup(
         "Development Status :: 3 - Alpha"
     ]
 )
+
