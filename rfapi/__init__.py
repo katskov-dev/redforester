@@ -2,7 +2,7 @@ import aiohttp
 import asyncio
 from .config import PRODUCTION_CONFIG
 import json
-
+import hashlib
 
 class Session:
     """
@@ -11,6 +11,9 @@ class Session:
     """
     def __init__(self, username, password, config=PRODUCTION_CONFIG):
         self.config = config
+        md5 = hashlib.md5()
+        md5.update(password.encode())
+        password = md5.hexdigest()
         self.auth = aiohttp.BasicAuth(login=username, password=password, encoding="utf-8")
         self.loop = asyncio.new_event_loop()
 

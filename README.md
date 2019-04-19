@@ -10,3 +10,8 @@
 ## Installing
 
 1. Install with PIP `pip install git+https://github.com/ichega/rfapi.git`
+
+### Examples
+```python
+
+```
