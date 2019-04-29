@@ -2,7 +2,7 @@
   
 **Features**  
   
-- Python 3.6  
+- Python 3.7
 - Async (using aiohttp)  
 - Lightweight  
 - Fast  
@@ -30,7 +30,9 @@
 ```python  
 import rfapi  
   
-session = rfapi.Session(username="", password="")
+session = rfapi.Session(username="username", password="password")
+# Можно вместо пароля передать его md5 хеш
+# session = rfapi.Session(username="username", password="5F4DCC3B5AA765D61D8327DEB882CF99", use_md5=True)
 ```
 > **Замечание:** Можно также подключится к тестовому серверу
 ```python  
