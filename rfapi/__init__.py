@@ -98,12 +98,12 @@ class Sequence(Action):
         self.data = [action.prepare_for_batch() for action in self.actions]
 
 
-# class User:
-#     def __init__(self, session: Session):
-#         self.session = session
-#         self.id = ""
-#         self.username = ""
-#         self.name = ""
-#         self.surname = ""
-#         self.avatar = ""
-#         # self.registration_date = ""
+class User:
+    def __init__(self, session: Session):
+        self.session = session
+        self.id = ""
+        self.username = ""
+        self.name = ""
+        self.surname = ""
+        self.avatar = ""
+        # self.registration_date = ""
