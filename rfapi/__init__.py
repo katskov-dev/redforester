@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
-from .config import PRODUCTION_CONFIG
+from .config import PRODUCTION_CONFIG, Config
+
 import json
 import hashlib
 
@@ -11,7 +12,7 @@ class Session:
     Чтобы использовать на тестовом сервере, следует указать config = DEVELOPMENT_CONFIG
     """
 
-    def __init__(self, username, password, use_md5=False, config=PRODUCTION_CONFIG, ):
+    def __init__(self, username: str, password: str, use_md5: bool = False, config: Config = PRODUCTION_CONFIG, ):
         self.config = config
         if not use_md5:
             md5 = hashlib.md5()
@@ -26,7 +27,7 @@ class Request:
     Request - класс для совершения запросов получения данных от сервера RedForester. Использует информацию о сессии
     """
 
-    def __init__(self, session, method, url, data={}):
+    def __init__(self, session: Session, method: str, url: str, data: dict = {}):
         self.session = session
         self.method = method
         self.url = url
@@ -41,6 +42,12 @@ class Request:
 
     def send(self):
         return self.session.loop.run_until_complete(self.async_send())
+
+    def __call__(self, sync=False, *args, **kwargs):
+        if not sync:
+            return self.session.loop.run_until_complete(self.async_send())
+        else:
+            return self.send()
 
 
 class Action(Request):
@@ -69,6 +76,15 @@ class Action(Request):
                                        data=json.dumps(self.data), headers=headers) as response:
                 return response.status, await response.text()
 
+    def send(self):
+        return self.session.loop.run_until_complete(self.async_send())
+
+    def __call__(self, sync=False, *args, **kwargs):
+        if not sync:
+            return self.session.loop.run_until_complete(self.async_send())
+        else:
+            return self.send()
+
 
 class Sequence(Action):
     """
@@ -76,15 +92,18 @@ class Sequence(Action):
     Организует отдельные Action в batch-запрос, что ускоряет выполнение действий на стороне сервера.
     """
 
-    def __init__(self, session, actions=()):
+    def __init__(self, session: Session, actions: tuple = ()):
         super().__init__(session=session, method="POST", url="/api/batch")
         self.actions = actions
         self.data = [action.prepare_for_batch() for action in self.actions]
 
+
 # class User:
-#     id = ""
-#     username = ""
-#     name = ""
-#     surname = ""
-#     avatar = ""
-#     kv_session = ""
+#     def __init__(self, session: Session):
+#         self.session = session
+#         self.id = ""
+#         self.username = ""
+#         self.name = ""
+#         self.surname = ""
+#         self.avatar = ""
+#         # self.registration_date = ""
