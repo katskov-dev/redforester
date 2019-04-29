@@ -43,11 +43,8 @@ class Request:
     def send(self):
         return self.session.loop.run_until_complete(self.async_send())
 
-    def __call__(self, sync=False, *args, **kwargs):
-        if not sync:
-            return self.session.loop.run_until_complete(self.async_send())
-        else:
-            return self.send()
+    async def __call__(self, *args, **kwargs):
+        return await self.async_send()
 
 
 class Action(Request):
@@ -79,11 +76,8 @@ class Action(Request):
     def send(self):
         return self.session.loop.run_until_complete(self.async_send())
 
-    def __call__(self, sync=False, *args, **kwargs):
-        if not sync:
-            return self.session.loop.run_until_complete(self.async_send())
-        else:
-            return self.send()
+    async def __call__(self, *args, **kwargs):
+        return await self.async_send()
 
 
 class Sequence(Action):
@@ -99,11 +93,15 @@ class Sequence(Action):
 
 
 class User:
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, user_id: str = ""):
         self.session = session
-        self.id = ""
+        self.id = user_id
         self.username = ""
         self.name = ""
         self.surname = ""
         self.avatar = ""
         # self.registration_date = ""
+
+    def __request_current_user_information(self):
+
+        return Request(self.session, "GET", "/api/user")
