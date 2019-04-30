@@ -15,8 +15,9 @@ class Session:
     """
 
     def __init__(self, username: str, password: str, use_md5: bool = False, config: Config = PRODUCTION_CONFIG,
-                 logs=True):
+                 logs=True, sync=False):
         self.config = config
+        self.sync = sync
         if not use_md5:
             md5 = hashlib.md5()
             md5.update(password.encode())
@@ -143,7 +144,7 @@ class Users:
     def __init__(self, session: Session):
         self.session = session
 
-    async def update(self, user: User):
+    async def __async_update(self, user: User):
 
         if not user.current:
             logging.error('Вы не можете изменять данные другого пользователя!')
@@ -154,7 +155,13 @@ class Users:
             if response[0] != 200:
                 logging.error('Users.update' + str(response))
 
-    async def get(self):
+    def __sync_update(self, user: User):
+        self.session.loop.run_until_complete(self.__async_update(user))
+
+
+
+
+    async def __async_get(self):
         request = Request(self.session, "GET", "/api/user")
         response = await request.async_send()
         if response[0] != 200:
@@ -173,9 +180,21 @@ class Users:
                 "kv_session": "" if not ("kv_session" in response[1]) else response[1]["kv_session"],
                 "is_extension_user": response[1]["is_extension_user"],
             }
-            return User(**args)
+            user = User(**args)
+            user.changes.clear()
+            return user
 
-    async def get_by_id(self, user_id: str):
+    def __sync_get(self):
+        return self.session.loop.run_until_complete(self.__async_get())
+
+
+
+
+
+        # print('SET', key, value)
+
+
+    async def __async_get_by_id(self, user_id: str):
         request = Request(self.session, "GET", f"/api/user/{user_id}")
         response = await request.async_send()
         if response[0] != 200:
@@ -194,6 +213,30 @@ class Users:
                 "kv_session": "" if not ("kv_session" in response[1]) else response[1]["kv_session"],
                 "is_extension_user": response[1]["is_extension_user"],
             }
-            return User(**args)
+            user = User(**args)
+            user.changes.clear()
+            return user
+
+    def __sync_get_by_id(self, user_id: str):
+        return self.session.loop.run_until_complete(self.get_by_id(user_id))
+
+
+    def __getattr__(self, item):
+        # super().__getattribute__(item)
+        if item == "get":
+            if self.session.sync:
+                return self.__sync_get
+            else:
+                return self.__async_get
+        elif item == "get_by_id":
+            if self.session.sync:
+                return self.__sync_get_by_id
+            else:
+                return self.__async_get_by_id
+        elif item == "update":
+            if self.session.sync:
+                return self.__sync_update
+            else:
+                return self.__async_update
 
 
