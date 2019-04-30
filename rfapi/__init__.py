@@ -5,6 +5,7 @@ import logging
 
 import json
 import hashlib
+from dataclasses import dataclass, field
 
 
 class Session:
@@ -13,7 +14,8 @@ class Session:
     Чтобы использовать на тестовом сервере, следует указать config = DEVELOPMENT_CONFIG
     """
 
-    def __init__(self, username: str, password: str, use_md5: bool = False, config: Config = PRODUCTION_CONFIG, ):
+    def __init__(self, username: str, password: str, use_md5: bool = False, config: Config = PRODUCTION_CONFIG,
+                 logs=True):
         self.config = config
         if not use_md5:
             md5 = hashlib.md5()
@@ -21,6 +23,12 @@ class Session:
             password = md5.hexdigest()
         self.auth = aiohttp.BasicAuth(login=username, password=password, encoding="utf-8")
         self.loop = asyncio.new_event_loop()
+        if logs:
+            logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(levelname)s: %(message)s',
+                                datefmt='%m.%d.%Y-%H:%M:%S')
+        else:
+            logging.basicConfig(level=logging.ERROR, format='[%(asctime)s] %(levelname)s:%(message)s',
+                                datefmt='%m.%d.%Y-%H:%M:%S')
 
 
 class Request:
@@ -93,62 +101,27 @@ class Sequence(Action):
         self.data = [action.prepare_for_batch() for action in self.actions]
 
 
+@dataclass
 class User:
     """
-    User - класс для работы с моделью пользователя
+    User - класс для хранения данных о пользователе
     """
-
-    def __init__(self, session: Session, user_id: str = ""):
-        self.changes = {}
-        self.session = session
-        self.current = True if user_id == "" else False
-        self.id = "" if self.current else user_id
-        self.username = ""
-        self.name = ""
-        self.surname = ""
-        self.avatar = ""
-        self.registration_date = ""
-        self.birthday = ""
-        self.kv_session = ""
-        self.is_extension_user = ""
-        self.changes.clear()
-
-        response = self.session.loop.run_until_complete(self.async_update())
-
-    def __str__(self):
-        return str(self.name) + " " + str(self.surname) + f"({self.username})"
-
-    def __update_from_response(self, response: dict):
-        self.id = response[1]["user_id"]
-        self.username = response[1]["username"]
-        self.name = "" if not ("name" in response[1]) else response[1]["name"]
-        self.surname = "" if not ("surname" in response[1]) else response[1]["surname"]
-        self.avatar = "" if not ("avatar" in response[1]) else response[1]["avatar"]
-        self.registration_date = "" if not ("registration_date" in response[1]) else response[1]["registration_date"]
-        self.birthday = "" if not ("birthday" in response[1]) else response[1]["birthday"]
-        self.kv_session = "" if not ("kv_session" in response[1]) else response[1]["kv_session"]
-        self.is_extension_user = "" if not ("is_extension_user" in response[1]) else response[1]["is_extension_user"]
-        self.changes.clear()
-
-    def __request_current_user_information(self):
-        return Request(self.session, "GET", "/api/user")
-
-    def __request_other_user_information(self, user_id: str):
-        return Request(self.session, "GET", f"/api/user/{user_id}")
-
-    async def async_update(self):
-        request = self.__request_current_user_information() if self.current else self.__request_other_user_information(
-            self.id)
-        response = await request()
-        # print(response)
-        if response[0] == 200:
-            self.__update_from_response(response)
-            # print(self.__dict__)
-        else:
-            print('ERROR User.async_update', response)
+    current: bool = True
+    user_id: str = ""
+    username: str = ""
+    name: str = ""
+    surname: str = ""
+    avatar: str = ""
+    registration_date: str = ""
+    birthday: str = ""
+    kv_session: str = ""
+    is_extension_user: str = ""
+    changes: dict = field(default_factory=dict)
 
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
+        if not ("changes" in self.__dict__):
+            return
         if key == "changes":
             return
         if key == "id":
@@ -156,15 +129,65 @@ class User:
         self.changes[key] = value
         # print('SET', key, value)
 
-    async def async_save(self):
-        if not self.current:
-            print('Error, вы не можете изменять данные другого пользователя')
+
+class Users:
+    """
+    Users - репозиторий для работы с объектами типа User.
+    Основная задача - реализация CRUD методов
+    """
+
+    def __init__(self, session: Session):
+        self.session = session
+
+    async def update(self, user: User):
+
+        if not user.current:
+            logging.error('Вы не можете изменять данные другого пользователя!')
             return
-        if len(self.changes.keys()) > 0:
-            action = Action(self.session, 'PATCH', '/api/user', self.changes)
+        if len(user.changes.keys()) > 0:
+            action = Action(self.session, 'PATCH', '/api/user', user.changes)
             response = await action.async_send()
             if response[0] != 200:
-                print('Error User.async_save')
+                logging.error('Users.update' + str(response))
 
-    def save(self):
-        self.session.loop.run_until_complete(self.async_save())
+    async def get(self):
+        request = Request(self.session, "GET", "/api/user")
+        response = await request.async_send()
+        if response[0] != 200:
+            logging.error('Users.get' + str(response))
+            return None
+        else:
+            args = {
+                "current": True,
+                "user_id": response[1]["user_id"],
+                "username": response[1]["username"],
+                "name": response[1]["name"],
+                "surname": response[1]["surname"],
+                "avatar": response[1]["avatar"],
+                "registration_date": response[1]["registration_date"],
+                "birthday": response[1]["birthday"],
+                "kv_session": "" if not ("kv_session" in response[1]) else response[1]["kv_session"],
+                "is_extension_user": response[1]["is_extension_user"],
+            }
+            return User(**args)
+
+    async def get_by_id(self, user_id: str):
+        request = Request(self.session, "GET", f"/api/user/{user_id}")
+        response = await request.async_send()
+        if response[0] != 200:
+            logging.error('Users.get' + str(response))
+            return None
+        else:
+            args = {
+                "current": True,
+                "user_id": response[1]["user_id"],
+                "username": response[1]["username"],
+                "name": response[1]["name"],
+                "surname": response[1]["surname"],
+                "avatar": response[1]["avatar"],
+                "registration_date": response[1]["registration_date"],
+                "birthday": response[1]["birthday"],
+                "kv_session": "" if not ("kv_session" in response[1]) else response[1]["kv_session"],
+                "is_extension_user": response[1]["is_extension_user"],
+            }
+            return User(**args)
