@@ -102,7 +102,23 @@ class Sequence(Action):
 
 
 @dataclass
-class User:
+class DataNode:
+    changes: dict = field(default_factory=dict)
+
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        if not ("changes" in self.__dict__):
+            return
+        if key == "changes":
+            return
+        if key == "id":
+            key = "user_id"
+        self.changes[key] = value
+        # print('SET', key, value)
+
+
+@dataclass
+class User(DataNode):
     """
     User - класс для хранения данных о пользователе
     """
@@ -116,18 +132,6 @@ class User:
     birthday: str = ""
     kv_session: str = ""
     is_extension_user: str = ""
-    changes: dict = field(default_factory=dict)
-
-    def __setattr__(self, key, value):
-        super().__setattr__(key, value)
-        if not ("changes" in self.__dict__):
-            return
-        if key == "changes":
-            return
-        if key == "id":
-            key = "user_id"
-        self.changes[key] = value
-        # print('SET', key, value)
 
 
 class Users:
