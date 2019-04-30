@@ -195,3 +195,5 @@ class Users:
                 "is_extension_user": response[1]["is_extension_user"],
             }
             return User(**args)
+
+
