@@ -1,0 +1,14 @@
+Metadata-Version: 1.1
+Name: redforester
+Version: 0.1.6
+Summary: Async RedForester API module for Python 3.7+
+Home-page: https://github.com/ichega/rfapi/
+Author: Pavel Katskov
+Author-email: pasha_kackov@mail.ru
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Development Status :: 3 - Alpha
