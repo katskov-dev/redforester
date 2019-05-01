@@ -1,15 +1,15 @@
 from setuptools import setup
 
 setup(
-    name="rfapi",
-    version="0.1.5",
+    name="redforester",
+    version="0.1.6",
     description="Async RedForester API module for Python 3.7+",
     url="https://github.com/ichega/rfapi/",
     author="Pavel Katskov",
     author_email="pasha_kackov@mail.ru",
     license="MIT",
     packages=[
-        "rfapi"
+        "redforester"
     ],
     install_requires=[
         "aiohttp",

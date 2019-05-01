@@ -98,7 +98,7 @@ avatar_info = {
     "avatar": "https://img.icons8.com/color/48/000000/administrator-male.png",  
 }  
 map_info = {  
-    "name": "This map created with rfapi :)"  
+    "name": redforester  
 }  
 action1 = rfapi.Action(session, "PATCH", "/api/user", avatar_info)  
 action2 = rfapi.Action(session, "POST", "/api/maps", map_info)  
