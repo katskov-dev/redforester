@@ -1,8 +1,8 @@
 Metadata-Version: 1.1
 Name: redforester
-Version: 0.1.6
+Version: 0.1.7
 Summary: Async RedForester API module for Python 3.7+
-Home-page: https://github.com/ichega/rfapi/
+Home-page: https://github.com/ichega/redforester
 Author: Pavel Katskov
 Author-email: pasha_kackov@mail.ru
 License: MIT
