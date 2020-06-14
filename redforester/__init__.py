@@ -245,7 +245,7 @@ class Map(DataNode):
 
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
-        print(self.__dict__)
+        # print(self.__dict__)
         # for kwarg in kwargs:
         #     print(kwargs)
         super().__init__()
@@ -300,6 +300,36 @@ class Maps:
 
     def update(self, *maps: typing.List[Map]):
         self.session.loop.run_until_complete(self.async_update(*maps))
+
+    async def async_get_all(self):
+        request = Request(self.session, "GET", f"/api/maps")
+        response = await request.async_send()
+        if response[0] != 200:
+            logging.error('Maps.get_all' + str(response))
+            return None
+        else:
+            maps = []
+            for map_data in response[1]:
+                args = {
+                    "id": "" if not ("id" in map_data) else map_data["id"],
+                    "root_node_id": "" if not ("root_node_id" in map_data) else map_data["root_node_id"],
+                    "owner": "" if not ("owner" in map_data) else map_data["owner"],
+                    "owner_name": "" if not ("owner_name" in map_data) else map_data["owner_name"],
+                    "owner_avatar": "" if not ("owner_avatar" in map_data) else map_data["owner_avatar"],
+                    "layout": "" if not ("layout" in map_data) else map_data["layout"],
+                    "public": False if not ("public" in map_data) else map_data["public"],
+                    "node_count": 0 if not ("node_count" in map_data) else map_data["node_count"],
+                    "user_count": 0 if not ("user_count" in map_data) else map_data["user_count"],
+                    "name": "" if not ("name" in map_data) else map_data["name"],
+
+                }
+                map = Map(**args)
+                map.changes.clear()
+                maps.append(map)
+            return maps
+
+    def get_all(self):
+        return self.session.loop.run_until_complete(self.async_get_all())
 
     async def async_get_by_id(self, map_id: str):
         request = Request(self.session, "GET", f"/api/maps/{map_id}")

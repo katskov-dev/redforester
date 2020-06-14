@@ -27,7 +27,7 @@
 ### 1. Создать сессию 
 
 ```python  
-import rfapi  
+import redforester  
   
 session = rfapi.Session(username="username", password="password")
 # Можно вместо пароля передать его md5 хеш
@@ -45,21 +45,21 @@ session = rfapi.Session(username="", password="", config=DEVELOPMENT_CONFIG)
 Пример, получение данных о пользователе:
 #### 2.1. Синхронный вариант - метод `send`
 ```python
-import rfapi  
+import redforester  
   
-session = rfapi.Session(username="username", password="password")  
+session = redforester.Session(username="username", password="password")  
   
-request = rfapi.Request(session=session, method="GET", url="/api/user")  
+request = redforester.Request(session=session, method="GET", url="/api/user")  
 response = request.send()  
 print(response)
 ```
 #### 2.2. Асинхронный вариант - метод `async_send`
 ```python
-import rfapi  
+import redforester  
 import asyncio  
   
-session = rfapi.Session(username="username", password="password")  
-request = rfapi.Request(session=session, method="GET", url="/api/user")  
+session = redforester.Session(username="username", password="password")  
+request = redforester.Request(session=session, method="GET", url="/api/user")  
 loop = asyncio.get_event_loop()  
 response = loop.run_until_complete(request.async_send())  
 print(response)
@@ -71,13 +71,13 @@ print(response)
 Пример, пусть нужно изменить аватар пользователя:
 **Синхронный вариант**:
 ```python
-import rfapi  
+import redforester  
   
-session = rfapi.Session(username="username", password="password")  
+session = redforester.Session(username="username", password="password")  
 data = {  
     "avatar": "https://img.icons8.com/color/48/000000/administrator-male.png",  
 }  
-action = rfapi.Action(session, method="PATCH", url="/api/user", data=data)  
+action = redforester.Action(session, method="PATCH", url="/api/user", data=data)  
 response = action.send()  
 print(response)
 ```
@@ -90,18 +90,18 @@ print(response)
 
 Пример, пусть нужно изменить аватар пользователя и создать новую карту:
 ```python
-import rfapi  
+import redforester  
   
-session = rfapi.Session(username="username", password="password")  
+session = redforester.Session(username="username", password="password")  
 avatar_info = {  
     "avatar": "https://img.icons8.com/color/48/000000/administrator-male.png",  
 }  
 map_info = {  
     "name": redforester  
 }  
-action1 = rfapi.Action(session, "PATCH", "/api/user", avatar_info)  
-action2 = rfapi.Action(session, "POST", "/api/maps", map_info)  
-sequence = rfapi.Sequence(session, (action1, action2))  
+action1 = redforester.Action(session, "PATCH", "/api/user", avatar_info)  
+action2 = redforester.Action(session, "POST", "/api/maps", map_info)  
+sequence = redforester.Sequence(session, (action1, action2))  
 response = sequence.send()  
 print(response)
 ```

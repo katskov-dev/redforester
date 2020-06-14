@@ -2,3 +2,6 @@ __pycache__
 /venv
 /.idea
 /test.py
+/dist
+/build
+/redforester.egg-info
