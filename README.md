@@ -70,7 +70,8 @@ print(response)
 ```
 
 ### 3. Совершение действий в RedForester 
-#### 3.1. Action
+#### 3.1. Если нужно сделать просто запрос к рф ручками :)
+##### 3.1.1. Action
 Для этого используется класс `Action`.  Аналогично `Request`, он имеет синхронный и асинхронный вариант.
 Пример, пусть нужно изменить аватар пользователя:
 **Синхронный вариант**:
@@ -85,7 +86,7 @@ action = redforester.Action(session, method="PATCH", url="/api/user", data=data)
 response = action.send()  
 print(response)
 ```
-#### 3.2.  Sequence
+##### 3.1.2.  Sequence
 В документации RedForester рекомендуется использовать batch запросы для совершения нескольких последовательных действий. Для этих целей был разработан класс `Sequence`, который позволяет легко организовать несколько `Action` в batch-запрос. 
 
 Конструктор `Sequence` принимает два аргумента:
@@ -109,3 +110,12 @@ sequence = redforester.Sequence(session, (action1, action2))
 response = sequence.send()  
 print(response)
 ```
+#### 3.2  User
+
+#### 3.3  Maps
+
+#### 3.4  Node
+
+#### 3.5  Event
+
+#### 3.6  Listener
