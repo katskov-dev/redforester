@@ -9,7 +9,11 @@
   
 ## Installing  
   
-1. Install with PIP `pip install git+https://github.com/ichega/rfapi.git`  
+1. Install with PIP `pip install git+https://github.com/ichega/redforester.git`  
+
+or 
+
+`pip install redforester`
 
 ## Roadmap
 Реализовать следующий набор классов:
@@ -29,16 +33,16 @@
 ```python  
 import redforester  
   
-session = rfapi.Session(username="username", password="password")
+session = redforester.Session(username="username", password="password")
 # Можно вместо пароля передать его md5 хеш
-# session = rfapi.Session(username="username", password="5F4DCC3B5AA765D61D8327DEB882CF99", use_md5=True)
+# session = redforester.Session(username="username", password="5F4DCC3B5AA765D61D8327DEB882CF99", use_md5=True)
 ```
 > **Замечание:** Можно также подключится к тестовому серверу
 ```python  
-import rfapi  
-from rfapi.config import DEVELOPMENT_CONFIG  
+import redforester  
+from redforester.config import DEVELOPMENT_CONFIG  
   
-session = rfapi.Session(username="", password="", config=DEVELOPMENT_CONFIG)
+session = redforester.Session(username="", password="", config=DEVELOPMENT_CONFIG)
 ```
 ### 2. Получение информации из RedForester
 Для этого необходимо использовать класс `Request`:
