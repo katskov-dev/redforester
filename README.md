@@ -1,4 +1,4 @@
-# rfapi - RedForester API module for Python  
+# redforester - RedForester API module for Python  
   
 **Features**  
   
